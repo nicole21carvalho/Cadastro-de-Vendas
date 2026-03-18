@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sales Manager Dashboard</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div>
+        <h1>Sales<span>Manager</span></h1>
+        <p class="sidebar-subtitle">Dashboard profissional de vendas</p>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="#cadastro">Cadastro</a>
+        <a href="#dashboard">Dashboard</a>
+        <a href="#graficos">Gráficos</a>
+        <a href="#filtros">Filtros</a>
+        <a href="#tabela">Tabela</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <h2>Painel de Vendas</h2>
+          <p>Acompanhe desempenho, filtre resultados e visualize tendências.</p>
+        </div>
+        <button class="btn btn-danger" id="btnLimparTudo">Limpar tudo</button>
+      </header>
+
+      <section class="form-section" id="cadastro">
+        <div class="section-header">
+          <h3>Nova venda</h3>
+          <p>Cadastre vendas e atualize o dashboard em tempo real.</p>
+        </div>
+
+        <form id="formVenda" class="form-grid">
+          <div class="field">
+            <label for="vendedor">Vendedor</label>
+            <input type="text" id="vendedor" placeholder="Ex: Maria" />
+          </div>
+
+          <div class="field">
+            <label for="valor">Valor da venda</label>
+            <input type="number" id="valor" placeholder="Ex: 1850" min="0" step="0.01" />
+          </div>
+
+          <div class="field">
+            <label for="percentualDesconto">Desconto (%)</label>
+            <input type="number" id="percentualDesconto" value="10" min="0" max="100" step="0.01" />
+          </div>
+
+          <div class="field">
+            <label for="categoria">Categoria</label>
+            <select id="categoria">
+              <option value="Produto">Produto</option>
+              <option value="Serviço">Serviço</option>
+              <option value="Consultoria">Consultoria</option>
+              <option value="Assinatura">Assinatura</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="dataVenda">Data da venda</label>
+            <input type="date" id="dataVenda" />
+          </div>
+
+          <div class="field action-field">
+            <label>&nbsp;</label>
+            <button type="submit" class="btn btn-primary">Cadastrar venda</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="dashboard-section" id="dashboard">
+        <div class="section-header">
+          <h3>Indicadores</h3>
+          <p>Resumo dos principais números da operação.</p>
+        </div>
+
+        <div class="cards">
+          <div class="card">
+            <span>Total de vendas</span>
+            <strong id="cardTotalVendas">0</strong>
+          </div>
+
+          <div class="card">
+            <span>Faturamento bruto</span>
+            <strong id="cardFaturamentoBruto">R$ 0,00</strong>
+          </div>
+
+          <div class="card">
+            <span>Total de descontos</span>
+            <strong id="cardDescontos">R$ 0,00</strong>
+          </div>
+
+          <div class="card">
+            <span>Faturamento líquido</span>
+            <strong id="cardFaturamentoLiquido">R$ 0,00</strong>
+          </div>
+
+          <div class="card">
+            <span>Ticket médio</span>
+            <strong id="cardTicketMedio">R$ 0,00</strong>
+          </div>
+
+          <div class="card">
+            <span>Melhor vendedor</span>
+            <strong id="cardMelhorVendedor">-</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="charts-section" id="graficos">
+        <div class="section-header">
+          <h3>Gráficos</h3>
+          <p>Visualize a performance por vendedor, categoria e evolução das vendas.</p>
+        </div>
+
+        <div class="charts-grid">
+          <div class="chart-card">
+            <h4>Faturamento por vendedor</h4>
+            <canvas id="graficoVendedores"></canvas>
+          </div>
+
+          <div class="chart-card">
+            <h4>Distribuição por categoria</h4>
+            <canvas id="graficoCategorias"></canvas>
+          </div>
+
+          <div class="chart-card chart-wide">
+            <h4>Evolução do faturamento líquido</h4>
+            <canvas id="graficoEvolucao"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <section class="filters-section" id="filtros">
+        <div class="section-header">
+          <h3>Filtros avançados</h3>
+          <p>Refine a análise dos dados.</p>
+        </div>
+
+        <div class="filters-grid">
+          <div class="field">
+            <label for="filtroBusca">Buscar vendedor</label>
+            <input type="text" id="filtroBusca" placeholder="Digite um nome" />
+          </div>
+
+          <div class="field">
+            <label for="filtroCategoria">Categoria</label>
+            <select id="filtroCategoria">
+              <option value="">Todas</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="filtroDataInicio">Data inicial</label>
+            <input type="date" id="filtroDataInicio" />
+          </div>
+
+          <div class="field">
+            <label for="filtroDataFim">Data final</label>
+            <input type="date" id="filtroDataFim" />
+          </div>
+
+          <div class="field">
+            <label for="filtroValorMin">Valor mínimo</label>
+            <input type="number" id="filtroValorMin" min="0" step="0.01" placeholder="0" />
+          </div>
+
+          <div class="field">
+            <label for="filtroValorMax">Valor máximo</label>
+            <input type="number" id="filtroValorMax" min="0" step="0.01" placeholder="5000" />
+          </div>
+
+          <div class="field">
+            <label for="ordenacao">Ordenar por</label>
+            <select id="ordenacao">
+              <option value="mais-recente">Mais recente</option>
+              <option value="mais-antigo">Mais antigo</option>
+              <option value="maior-valor">Maior valor</option>
+              <option value="menor-valor">Menor valor</option>
+              <option value="vendedor-az">Vendedor A-Z</option>
+              <option value="vendedor-za">Vendedor Z-A</option>
+            </select>
+          </div>
+
+          <div class="field action-field">
+            <label>&nbsp;</label>
+            <button type="button" class="btn btn-secondary" id="btnLimparFiltros">Limpar filtros</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="table-section" id="tabela">
+        <div class="section-header">
+          <h3>Lista de vendas</h3>
+          <p id="resumoFiltros">Exibindo todas as vendas cadastradas.</p>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Vendedor</th>
+                <th>Categoria</th>
+                <th>Valor</th>
+                <th>Desconto</th>
+                <th>Valor final</th>
+                <th>Data</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaVendas"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/script.js"></script>
+</body>
+</html>
