@@ -1,6 +1,16 @@
 const STORAGE_KEY = "sales_manager_dashboard_vendas";
 
-let vendas = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+// Se o que está salvo estiver corrompido (ou o storage bloqueado), começa vazio em vez de quebrar a página
+function carregarVendas() {
+  try {
+    const salvas = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    return Array.isArray(salvas) ? salvas : [];
+  } catch {
+    return [];
+  }
+}
+
+let vendas = carregarVendas();
 let contador = vendas.length ? Math.max(...vendas.map(v => v.id)) : 0;
 
 const formVenda = document.getElementById("formVenda");
@@ -36,7 +46,11 @@ let graficoCategorias = null;
 let graficoEvolucao = null;
 
 function salvarStorage() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(vendas));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(vendas));
+  } catch {
+    // Sem storage disponível: as vendas ficam só até a página ser fechada
+  }
 }
 
 function formatarMoeda(valor) {
@@ -139,11 +153,15 @@ function limparTudo() {
 
 function popularFiltroCategorias() {
   const categorias = [...new Set(vendas.map(venda => venda.categoria))].sort();
-  filtroCategoria.innerHTML = `<option value="">Todas</option>`;
+  // Guarda a categoria escolhida: recriar as opções apagava a seleção,
+  // e o filtro por categoria nunca era aplicado
+  const selecionada = filtroCategoria.value;
 
-  categorias.forEach(categoria => {
-    filtroCategoria.innerHTML += `<option value="${categoria}">${categoria}</option>`;
-  });
+  filtroCategoria.replaceChildren(
+    new Option("Todas", ""),
+    ...categorias.map(categoria => new Option(categoria, categoria))
+  );
+  filtroCategoria.value = categorias.includes(selecionada) ? selecionada : "";
 }
 
 function aplicarFiltros() {
@@ -228,25 +246,47 @@ function renderizarTabela(vendasFiltradas) {
     return;
   }
 
+  // As células são preenchidas com textContent: o que foi digitado aparece como
+  // texto e nunca é interpretado como HTML
+  const celula = (conteudo) => {
+    const td = document.createElement("td");
+    td.append(conteudo);
+    return td;
+  };
+
   vendasFiltradas.forEach(venda => {
     const linha = document.createElement("tr");
 
-    linha.innerHTML = `
-      <td>${venda.id}</td>
-      <td>${venda.vendedor}</td>
-      <td><span class="badge">${venda.categoria}</span></td>
-      <td>${formatarMoeda(venda.valor)}</td>
-      <td>${formatarMoeda(venda.desconto)} (${venda.descontoPercentual}%)</td>
-      <td>${formatarMoeda(venda.valorFinal)}</td>
-      <td>${formatarDataExibicao(venda.dataVenda)}</td>
-      <td>
-        <button class="btn-remove" onclick="removerVenda(${venda.id})">Remover</button>
-      </td>
-    `;
+    const etiqueta = document.createElement("span");
+    etiqueta.className = "badge";
+    etiqueta.textContent = venda.categoria;
+
+    const botaoRemover = document.createElement("button");
+    botaoRemover.className = "btn-remove";
+    botaoRemover.type = "button";
+    botaoRemover.dataset.id = venda.id;
+    botaoRemover.textContent = "Remover";
+
+    linha.append(
+      celula(String(venda.id)),
+      celula(venda.vendedor),
+      celula(etiqueta),
+      celula(formatarMoeda(venda.valor)),
+      celula(`${formatarMoeda(venda.desconto)} (${venda.descontoPercentual}%)`),
+      celula(formatarMoeda(venda.valorFinal)),
+      celula(formatarDataExibicao(venda.dataVenda)),
+      celula(botaoRemover)
+    );
 
     tabelaVendas.appendChild(linha);
   });
 }
+
+// Um único listener para todos os botões "Remover", inclusive os criados depois
+tabelaVendas.addEventListener("click", evento => {
+  const botao = evento.target.closest(".btn-remove");
+  if (botao) removerVenda(Number(botao.dataset.id));
+});
 
 function atualizarDashboard(vendasFiltradas) {
   const totalVendas = vendasFiltradas.length;
@@ -435,5 +475,3 @@ btnLimparTudo.addEventListener("click", limparTudo);
 
 definirDataAtual();
 atualizarInterface();
-
-window.removerVenda = removerVenda;
